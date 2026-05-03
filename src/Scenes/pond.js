@@ -10,9 +10,22 @@ class Pond extends Phaser.Scene {
         this.load.image('bulletEnemy', 'assets/kenney_shooting-gallery/PNG/HUD/icon_bullet_gold_short.png'); //enemy bullet
         this.load.audio('duckCollisionSound', 'assets/kenney_impact-sounds/Audio/footstep_concrete_001.ogg'); //load enemy collision sound
         this.load.audio('playerCollisionSound', 'assets/kenney_impact-sounds/Audio/footstep_grass_003.ogg'); //load player collision sound
+        this.load.audio('bgm', 'assets/bgm.mp3'); //load background music
+
+         this.load.image('pondTiles', 'assets/kenney_tiny-battle/Tilemap/tilemap_packed.png');
+         this.load.tilemapTiledJSON('pondMap', 'assets/background.json'); //load json 
     }
 
     create() {
+
+        this.map = this.make.tilemap({ key: 'pondMap' }); //create map using key from preload , 16x16 tiles
+        this.tileset = this.map.addTilesetImage('tilemap_packed', 'pondTiles'); //add tileset to map
+
+        this.grassLayer = this.map.createLayer('grass', this.tileset, 0, 0); //add grass layer
+        this.pondLayer = this.map.createLayer('ponds', this.tileset, 0, 0); //add pond layer
+        this.treeLayer = this.map.createLayer('trees', this.tileset, 0, 0); //add trees layer
+        this.pondLayer.setScale(1.2);
+        this.treeLayer.setScale(1.7);
 
         //setup UI for score and wave number
         this.wave = 1;  //wave number 
@@ -71,6 +84,9 @@ class Pond extends Phaser.Scene {
 
         this.duckHitSound = this.sound.add('duckCollisionSound'); //create duck collision sound    
         this.playerHitSound = this.sound.add('playerCollisionSound') //create player collision sound
+
+        this.bgm = this.sound.add('bgm', { loop: true, volume: 0.3 }); //create bgm object and set it to loop
+        this.bgm.play(); //play bgm
     }
 
     update(time, delta) {
@@ -146,6 +162,7 @@ class Pond extends Phaser.Scene {
                     // remove from array
                     this.ducks.splice(j, 1);
                     j--;
+                    duck.shootTimer.remove(); //remove shoot timer for the duck
 
                     // remove bullet
                     bullet.destroy();
@@ -193,6 +210,10 @@ class Pond extends Phaser.Scene {
                       this.scene.start('restartScene');
                 }
 
+            if (this.wave > 10) { //if player completes wave 10, they win the game
+                this.scene.start('victoryScene');
+            }   
+
     }
 
     spawnDuck() {
@@ -212,7 +233,7 @@ class Pond extends Phaser.Scene {
             type = 'duck';
         }
 
-        let duck = this.add.sprite(x, 50, type); //add sprite using the x value generated earlier 
+        let duck = this.add.sprite(x, 20, type); //add sprite using the x value generated earlier 
         duck.baseX = x; //record the base x value as we will overwrite duck.x in the pathing
 
         duck.amplitude = 70; //will move the duck 60 pixels left/right 
@@ -224,7 +245,7 @@ class Pond extends Phaser.Scene {
         }
 
         duck.shootTimer = this.time.addEvent({ //give each duck its own timer for bullet firing
-            delay: 3500, //set time between each bullet cast
+            delay: 3000, //set time between each bullet cast
             callback: () => {
                 let bullet = this.add.sprite(duck.x, duck.y + 20, 'bulletEnemy'); //create bullet 
                 bullet.setFlipY(true);

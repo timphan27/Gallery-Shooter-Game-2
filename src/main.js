@@ -10,7 +10,7 @@ let config = {
     },
     width: 1000,
     height: 700,
-    scene: [Pond, Restart]
+    scene: [Pond, Restart, Victory]
 }
 
 const game = new Phaser.Game(config);
