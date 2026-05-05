@@ -12,8 +12,8 @@ class Pond extends Phaser.Scene {
         this.load.audio('playerCollisionSound', 'assets/kenney_impact-sounds/Audio/footstep_grass_003.ogg'); //load player collision sound
         this.load.audio('bgm', 'assets/bgm.mp3'); //load background music
 
-         this.load.image('pondTiles', 'assets/kenney_tiny-battle/Tilemap/tilemap_packed.png');
-         this.load.tilemapTiledJSON('pondMap', 'assets/background.json'); //load json 
+        this.load.image('pondTiles', 'assets/kenney_tiny-battle/Tilemap/tilemap_packed.png');
+        this.load.tilemapTiledJSON('pondMap', 'assets/background.json'); //load json 
     }
 
     create() {
@@ -50,6 +50,25 @@ class Pond extends Phaser.Scene {
 
             }
         );
+
+        //create tutotial text, disapepars after 5 seconds
+        this.tutorial = this.add.text(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            "Press Space to shoot, A and D to move left/right.",
+            {
+                fontSize: "42px",
+                color: "#000000",
+                align: "center",
+                wordWrap: { width: 400 },
+                stroke: "#000000",        // outline color
+                strokeThickness: 2        // thickness of outline
+            }
+        ).setOrigin(0.5);
+
+        this.time.delayedCall(5000, () => {
+            this.tutorial.destroy();
+        })
 
         this.uiText.setOrigin(1, 0); // RIGHT align
 
@@ -141,9 +160,9 @@ class Pond extends Phaser.Scene {
             d.x = d.baseX + Math.sin(d.y * 0.02) * d.amplitude;
 
             if (d.y > this.scale.height - 50) { //if position of duck reaches the border of the screen, go to restart scene
-                 d.destroy();
-                 this.ducks.splice(i, 1);
-                 this.health--;
+                d.destroy();
+                this.ducks.splice(i, 1);
+                this.health--;
             }
         }
 
@@ -195,7 +214,7 @@ class Pond extends Phaser.Scene {
         }
 
         //check if the max number of ducks has spawned AND all ducks are dead
-        if (this.ducksSpawned >= this.maxDucks && this.ducks.length === 0) { 
+        if (this.ducksSpawned >= this.maxDucks && this.ducks.length === 0) {
             this.updateWave(); //if so, move on to next wave 
         }
 
@@ -206,13 +225,13 @@ class Pond extends Phaser.Scene {
 
 
         //if health is 0 or less, restart game
-        if (this.health <= 0) { 
-                      this.scene.start('restartScene');
-                }
+        if (this.health <= 0) {
+            this.scene.start('restartScene');
+        }
 
-            if (this.wave > 10) { //if player completes wave 10, they win the game
-                this.scene.start('victoryScene');
-            }   
+        if (this.wave > 10) { //if player completes wave 10, they win the game
+            this.scene.start('victoryScene');
+        }
 
     }
 
